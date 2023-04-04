@@ -53,8 +53,11 @@ int main()
             if( event.type == sf::Event::Closed ) window.close();
         }
 
-        AlphaBlend( &out_img, &table_img, &cat_img, {100, 100} );
-        out_texture.update( out_img );
+        for( int i = 0; i < 100; i++ )
+        {
+            AlphaBlend( &out_img, &table_img, &cat_img, {100, 100} );
+            out_texture.update( out_img );
+        }
         
         printf ( "FPS %.3f\n", 1 / elapsed.asSeconds() );
 
