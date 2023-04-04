@@ -78,6 +78,10 @@ inline void AlphaBlend( sf::Image* out_img,
 
     sf::Vector2u front_img_size = front_img->getSize();
 
+    memcpy( ( void* )out_img ->getPixelsPtr(), 
+            ( void* )back_img->getPixelsPtr(), 
+            4 * back_img->getSize().y * back_img->getSize().x );
+
     for( unsigned int cur_y = 0; cur_y < front_img_size.y; cur_y++ )
     {
         for( unsigned int cur_x = 0; cur_x < front_img_size.x; cur_x++ )
