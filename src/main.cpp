@@ -111,6 +111,11 @@ inline void AlphaBlendSSE( sf::Image* out_img,
     sf::Uint8*  back_img_pixels_ptr = ( sf::Uint8* )(  back_img->getPixelsPtr() );
     sf::Uint8* front_img_pixels_ptr = ( sf::Uint8* )( front_img->getPixelsPtr() );
 
+    out_img->setPixel( 0,0, sf::Color( 50, 100, 200, 0 ) );
+
+    printf( "%d %d %d %d\n", out_img_pixels_ptr[0], out_img_pixels_ptr[1], 
+                            out_img_pixels_ptr[2], out_img_pixels_ptr[3] );
+
     memcpy( ( void* )out_img_pixels_ptr, 
             ( void* )back_img_pixels_ptr, 
             4 * back_img->getSize().y * back_img->getSize().x );
