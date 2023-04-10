@@ -21,10 +21,10 @@ const __m128i FF_Arr = _mm_set_epi8( 0, ( char )255, 0, ( char )255,
                                      0, ( char )255, 0, ( char )255,
                                      0, ( char )255, 0, ( char )255 );
 
-const __m128i Alpha_Shuffle_Mask = _mm_set_epi8( Zero_Val, 8, Zero_Val, 8, 
-                                                 Zero_Val, 8, Zero_Val, 8,
-                                                 Zero_Val, 0, Zero_Val, 0,
-                                                 Zero_Val, 0, Zero_Val, 0 );
+const __m128i Alpha_Shuffle_Mask = _mm_set_epi8( Zero_Val, 14, Zero_Val, 14, 
+                                                 Zero_Val, 14, Zero_Val, 14,
+                                                 Zero_Val, 6,  Zero_Val, 6,
+                                                 Zero_Val, 6,  Zero_Val, 6 );
 
 const __m128i Sum_Shuffle_Mask   = _mm_set_epi8( Zero_Val, Zero_Val, Zero_Val, Zero_Val, 
                                                  Zero_Val, Zero_Val, Zero_Val, Zero_Val,
@@ -111,10 +111,14 @@ inline void AlphaBlendSSE( sf::Image* out_img,
     sf::Uint8*  back_img_pixels_ptr = ( sf::Uint8* )(  back_img->getPixelsPtr() );
     sf::Uint8* front_img_pixels_ptr = ( sf::Uint8* )( front_img->getPixelsPtr() );
 
-    out_img->setPixel( 0,0, sf::Color( 50, 100, 200, 0 ) );
+    // out_img_pixels_ptr[0] = 50;
+    // out_img_pixels_ptr[1] = 100;
+    // out_img_pixels_ptr[2] = 150;
+    // out_img_pixels_ptr[3] = 0;
 
-    printf( "%d %d %d %d\n", out_img_pixels_ptr[0], out_img_pixels_ptr[1], 
-                            out_img_pixels_ptr[2], out_img_pixels_ptr[3] );
+    // sf::Color clr = out_img->getPixel( 0, 0 );
+
+    // printf( "%d %d %d %d\n", clr.r, clr.g, clr.b, clr.a );
 
     memcpy( ( void* )out_img_pixels_ptr, 
             ( void* )back_img_pixels_ptr, 
@@ -125,7 +129,7 @@ inline void AlphaBlendSSE( sf::Image* out_img,
         for( unsigned int cur_x = 0; cur_x < front_img_size.x; cur_x += 4 )
         {
             // load 
-            // | r3 g3 b3 a3 | r2 g2 b2 a2 | r1 g1 b1 a1 | r0 g0 b0 a0 |
+            // | a3 r3 g3 b3 | a2 r2 g2 b2 | a1 r1 g1 b1 | a0 r0 g0 b0 |
             // 
             __m128i front_clr = _mm_load_si128( ( const __m128i* )
                                                 ( &front_img_pixels_ptr[ 4*cur_x + 4*cur_y * front_img_size.x ] ) );
@@ -134,17 +138,17 @@ inline void AlphaBlendSSE( sf::Image* out_img,
                                                 (  &back_img_pixels_ptr[ 4*( cur_x + front_pos.x) + 
                                                                          4*( cur_y + front_pos.y ) * back_img_size.x ] ) );
             //
-            // | 0 0 0 0 | 0 0 0 0 | r3 g3 b3 a3 | r2 g2 b2 a2 | 
+            // | 0 0 0 0 | 0 0 0 0 | a3 r3 g3 b3 | a2 r2 g2 b2 | 
             //
             __m128i high_front_clr = ( __m128i )_mm_movehl_ps( ( __m128 )_mm_set1_epi8( 0 ), ( __m128 )front_clr );
             __m128i high_back_clr  = ( __m128i )_mm_movehl_ps( ( __m128 )_mm_set1_epi8( 0 ), ( __m128 )back_clr );
             // 
-            // | 0 r1 0 g1 | 0 b1 0 a1 | 0 r0 0 g0 | 0 b0 0 a0 |
+            // | a1 0 r1 | 0 g1 0 b1 | a0 0 r0 | 0 g0 0 b0 |
             //
             front_clr = _mm_cvtepu8_epi16( front_clr );
             back_clr  = _mm_cvtepu8_epi16( back_clr  );
             // 
-            // | 0 r3 0 g3 | 0 b3 0 a3 | 0 r2 0 g2 | 0 b2 0 a2 |
+            // | a3 0 r3 | 0 g3 0 b3 | a2 0 r2 | 0 g2 0 b2 |
             //
             high_front_clr = _mm_cvtepu8_epi16( high_front_clr );
             high_back_clr  = _mm_cvtepu8_epi16( high_back_clr  );
@@ -179,11 +183,11 @@ inline void AlphaBlendSSE( sf::Image* out_img,
                                               high_back_clr );
             //
             // shuffle
-            // | 0 0 0 0 | 0 0 0 0 | r1 g1 b1 a1 | r0 g0 b0 a0 |
+            // | 0 0 0 0 | 0 0 0 0 | a1 r1 g1 b1 | a0 r0 g0 b0 |
             //
             low_sum  = _mm_shuffle_epi8( low_sum,  Sum_Shuffle_Mask );
             //
-            // | 0 0 0 0 | 0 0 0 0 | r3 g3 b3 a3 | r2 g2 b2 a2 |                                
+            // | 0 0 0 0 | 0 0 0 0 | a3 r3 g3 b3 | a2 r2 g2 b2 |                                
             //
             high_sum = _mm_shuffle_epi8( high_sum, Sum_Shuffle_Mask );
 
