@@ -16,11 +16,6 @@ const int Window_Height = 600;
 
 const char Zero_Val = ( char )128;
 
-const __m128i Zero_Arr = _mm_set_epi8( 0, 0, 0, 0, 
-                                       0, 0, 0, 0, 
-                                       0, 0, 0, 0, 
-                                       0, 0, 0, 0 );
-
 const __m128i FF_Arr = _mm_set_epi8( 0, ( char )255, 0, ( char )255,
                                      0, ( char )255, 0, ( char )255, 
                                      0, ( char )255, 0, ( char )255,
@@ -128,16 +123,16 @@ inline void AlphaBlendSSE( sf::Image* out_img,
             // | r3 g3 b3 a3 | r2 g2 b2 a2 | r1 g1 b1 a1 | r0 g0 b0 a0 |
             // 
             __m128i front_clr = _mm_load_si128( ( const __m128i* )
-                                                ( &front_img_pixels_ptr[ cur_x + cur_y * front_img_size.x ] ) );
+                                                ( &front_img_pixels_ptr[ 4*cur_x + 4*cur_y * front_img_size.x ] ) );
             //
             __m128i back_clr  = _mm_load_si128( ( const __m128i* )
-                                                (  &back_img_pixels_ptr[ cur_x + front_pos.x + 
-                                                                       ( cur_y + front_pos.y ) * back_img_size.x ] ) );
+                                                (  &back_img_pixels_ptr[ 4*( cur_x + front_pos.x) + 
+                                                                         4*( cur_y + front_pos.y ) * back_img_size.x ] ) );
             //
             // | 0 0 0 0 | 0 0 0 0 | r3 g3 b3 a3 | r2 g2 b2 a2 | 
             //
-            __m128i high_front_clr = ( __m128i )_mm_movehl_ps( ( __m128 )Zero_Arr, ( __m128 )front_clr );
-            __m128i high_back_clr  = ( __m128i )_mm_movehl_ps( ( __m128 )Zero_Arr, ( __m128 )back_clr );
+            __m128i high_front_clr = ( __m128i )_mm_movehl_ps( ( __m128 )_mm_set1_epi8( 0 ), ( __m128 )front_clr );
+            __m128i high_back_clr  = ( __m128i )_mm_movehl_ps( ( __m128 )_mm_set1_epi8( 0 ), ( __m128 )back_clr );
             // 
             // | 0 r1 0 g1 | 0 b1 0 a1 | 0 r0 0 g0 | 0 b0 0 a0 |
             //
@@ -187,16 +182,14 @@ inline void AlphaBlendSSE( sf::Image* out_img,
             //
             high_sum = _mm_shuffle_epi8( high_sum, Sum_Shuffle_Mask );
 
-            __m128i new_color = _mm_set1_epi8( ( char )255 );
-            
-            new_color = ( __m128i )_mm_movelh_ps( ( __m128 )low_sum, 
-                                                  ( __m128 )high_sum );
+            __m128i new_color = ( __m128i )_mm_movelh_ps( ( __m128 )low_sum, 
+                                                          ( __m128 )high_sum );
             //
             // store
             //
             _mm_store_si128( ( __m128i* )
-                             ( &out_img_pixels_ptr[ cur_x + front_pos.x + 
-                                                  ( cur_y + front_pos.y ) * back_img_size.x ] ), new_color );
+                             ( &out_img_pixels_ptr[ 4*( cur_x + front_pos.x ) + 
+                                                    4*( cur_y + front_pos.y ) * back_img_size.x ] ), new_color );
         }
     }
 }
