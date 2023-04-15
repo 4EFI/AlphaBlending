@@ -77,9 +77,9 @@ int main()
         for( int i = 0; i < 100; i++ )
         {
             #ifndef SSE
-                AlphaBlend(    &out_img, &table_img, &cat_img, {100, 100} );
+                AlphaBlend(    &out_img, &table_img, &cat_img, {300, 220} );
             #else
-                AlphaBlendSSE( &out_img, &table_img, &cat_img, {100, 100} );
+                AlphaBlendSSE( &out_img, &table_img, &cat_img, {300, 220} );
             #endif
             out_texture.update( out_img );
         }
