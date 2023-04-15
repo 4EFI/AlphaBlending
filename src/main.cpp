@@ -7,7 +7,7 @@
 #include <string.h>
 #include <assert.h>
 
-// #define SSE
+#define SSE
 
 //-----------------------------------------------------------------------------
 
